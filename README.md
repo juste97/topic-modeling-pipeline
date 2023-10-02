@@ -16,7 +16,7 @@ This repository contains a pipeline for topic modeling using BERTopic, a Python 
 Specify paths for embeddings and reduced embeddings to expedite experimentation. 
 
 
-Instead of repeatedly loading and merging files, the pipeline saves models and embeddings in a unique folder every time an instance is created, ensuring a more efficient workflow.
+The pipeline saves everything (including cluster plot and topics overview) in a unique folder every time an instance is created.
 
 
 

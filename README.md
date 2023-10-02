@@ -2,6 +2,9 @@
 
 This repository contains a pipeline for topic modeling using BERTopic, a Python library for topic modeling with BERT embeddings. The pipeline includes preprocessing, tokenization, embedding generation, dimensionality reduction, clustering, and visualization.
 
+
+**Note: This is my first attempt at creating a class-based pipeline. If you have suggestions or best practices to share, please let me know! I'd greatly appreciate any feedback. 😊**
+
 ## Features
 
 - **Preprocessing**: Clean and sample Twitter data from a dataframe.
@@ -75,7 +78,6 @@ pipeline = TopicModelPipeline(
 ```
 
 ## Dependencies
-Dependencies
 matplotlib
 seaborn
 wordcloud
@@ -93,5 +95,4 @@ transformers
 huggingface_hub
 joblib
 tqdm
-locale
 swifter

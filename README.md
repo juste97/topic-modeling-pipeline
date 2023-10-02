@@ -35,11 +35,12 @@ The pipeline saves everything (including cluster plot and topics overview) in a 
 1. **Import**:
  ```python
  from src.topic_model import TopicModelPipeline
- from src.preprocessor import Preprocessor
 ```
 
 1.5 **Optional: Overwrite class for cleaning Tweets**
 ```python
+from src.preprocessor import Preprocessor
+
 def new_clean_text_columns(self):
     """
     Method to overwrite clean_text_columns method from Preprocessor.

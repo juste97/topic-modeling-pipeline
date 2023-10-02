@@ -1,6 +1,6 @@
 # Topic Modeling Pipeline
 
-This repository contains a pipeline for topic modeling using BERTopic, a Python library for topic modeling with BERT embeddings. The pipeline includes preprocessing, tokenization, embedding generation, dimensionality reduction, clustering, and visualization.
+This repository contains a pipeline for topic modeling using [BERTopic](https://github.com/MaartenGr/BERTopic), a Python library for topic modeling with BERT embeddings. The pipeline includes preprocessing, tokenization, embedding generation, dimensionality reduction, clustering, and visualization.
 
 
 **Note: This is my first attempt at creating a class-based pipeline. If you have suggestions or best practices to share, please let me know! I'd greatly appreciate any feedback 😊**
@@ -85,7 +85,7 @@ For GPU acceleration switch out HDBSCAN and UMAP import with
 from cuml.manifold import UMAP
 from cuml.cluster import HDBSCAN
 ```
-if RAPIDS cuML installation is possible.
+if [RAPIDS cuML](https://github.com/rapidsai/cuml) installation is possible.
 
 ## Dependencies
 matplotlib

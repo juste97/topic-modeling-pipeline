@@ -60,7 +60,7 @@ class TopicModelPipeline:
         sample_frequency: str = None,
         sample_by_column: str = None,
         clean_text: bool = False,
-        vocab_frequency=15,
+        vocab_frequency=0,
         min_samples=30,
         gen_min_span_tree=True,
         prediction_data=False,
@@ -69,7 +69,7 @@ class TopicModelPipeline:
         n_components=5,
         n_neighbors=10,
         metric="cosine",
-        tresh=2000,
+        tresh=0,
         tresh_percent=1,
         tresh_absolut=100,
         blackwords: list = [],
@@ -101,7 +101,7 @@ class TopicModelPipeline:
             n_components (int, optional): Number of components for UMAP dimensionality reduction.
             n_neighbors (int, optional): Number of neighbors for UMAP.
             metric (str, optional): Metric used for UMAP.
-            tresh (int, optional): Threshold value for preprocessing.
+            tresh (int, optional): Threshold value for preprocessing to allow for heavily imbalanced data. Set to 0 to apply tresh_percent and tresh_absolut on every group.
             tresh_percent (float, optional): Threshold percentage for preprocessing.
             tresh_absolut (int, optional): Absolute threshold for preprocessing.
             blackwords (list, optional): List of words to be blacklisted during preprocessing.
@@ -189,6 +189,7 @@ class TopicModelPipeline:
             self.tresh_percent,
             self.tresh_absolut,
             self.clean_text,
+            self.random_state,
             self.blackwords,
         ).preprocess()
 

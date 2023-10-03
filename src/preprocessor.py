@@ -34,6 +34,7 @@ class Preprocessor:
         tresh_percent: float,
         tresh_absolut: int,
         clean_text: bool,
+        random_state: int,
         blackwords: list = [],
     ):
         """
@@ -74,6 +75,7 @@ class Preprocessor:
         self.tresh_absolut = tresh_absolut
 
         self.clean_text = clean_text
+        self.random_state = random_state
         self.blackwords = blackwords
 
         self.df_filename = f"{self.project_name}_merged_dataframe.parquet"
@@ -113,9 +115,9 @@ class Preprocessor:
 
         #"%b %d, %Y · %I:%M %p UTC"
 
-    def categorize_by_filename(self):
+    def categorize_by_size(self):
         """
-        Categorize the dataframe based on the filename and sample size.
+        Categorize the dataframe based on sample size.
         """
         self.few_samples = self.df.groupby(self.sample_by_column).filter(
             lambda x: len(x) <= self.tresh
@@ -137,7 +139,7 @@ class Preprocessor:
         n_samples = min(
             int(len(group) * self.tresh_percent), self.tresh_absolut
         )
-        return group.sample(n=n_samples)
+        return group.sample(n=n_samples, random_state=self.random_state)
 
     def sample_from_df(self):
         """
@@ -145,7 +147,7 @@ class Preprocessor:
 
         """
         self.convert_timestamps()
-        self.categorize_by_filename()
+        self.categorize_by_size()
 
         if self.sample_frequency == 'day':
             time_grouping = self.many_samples[self.time_column].dt.day
@@ -153,6 +155,7 @@ class Preprocessor:
             time_grouping = self.many_samples[self.time_column].dt.month
         else:
             time_grouping = self.many_samples[self.time_column].dt.isocalendar().week
+
 
         random_sampled = (
             self.many_samples.groupby(
@@ -210,21 +213,21 @@ class Preprocessor:
 
             self.merge_parquet_files()
 
-            if self.sample:
-                print("Taking a subsample of the data...")
+        if self.sample:
+            print("Taking a subsample of the data...")
 
-                if self.sample_by_column == None:
+            if self.sample_by_column == None:
 
-                    self.sample_by_column = "Sample_Helper"
-                    self.df[self.sample_by_column] = 1
+                self.sample_by_column = "Sample_Helper"
+                self.df[self.sample_by_column] = 1
 
-                self.sample_from_df()
+            self.sample_from_df()
 
-            if self.clean_text:
-                print("Cleaning the text column...")
-                self.clean_text_columns()
+        if self.clean_text:
+            print("Cleaning the text column...")
+            self.clean_text_columns()
 
-            self.save_sampled_dataframe()
+        self.save_sampled_dataframe()
 
         docs, ids = self.dataframe_to_list()
 

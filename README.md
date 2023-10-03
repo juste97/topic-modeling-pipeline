@@ -55,14 +55,15 @@ Preprocessor.clean_text_columns = new_clean_text_columns
 ```python
 pipeline = TopicModelPipeline(
    project_name="Your_Project_Name",
-   path="path/to/save/output",
-   docs_path="path/to/documents",
-   file_type="csv",
+   output_path="path/to/save/output",
+   documents_path="path/to/documents",
+   file_type="parquet",
    model="all-MiniLM-L6-v2",
    time_column="timestamp_column_name",
    text_column="text_column_name",
    sample=True,
-   sample_frequency="day",
+   sample_frequency="daily",
+   tresh_absolut=200,
    clean_text=True
 )
 ```

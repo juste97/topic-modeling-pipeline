@@ -20,10 +20,9 @@ class Preprocessor:
         self,
         file_path: str,
         file_type: str,
-        docs_path: str,
+        documents_path: str,
         project_path: str,
         project_name: str,
-        path: str,
         time_column: str,
         time_format: str,
         text_column: str,
@@ -41,9 +40,8 @@ class Preprocessor:
         Args:
             file_path (str): Path to read already merged file.
             file_type (str): File type for reading.
-            docs_path (str): Path to the documents.
+            documents_path (str): Path to the documents.
             project_path (str): Path to the project directory.
-            path (str): General directory path.
             time_column (str): Name of the column containing timestamps.
             text_column (str): Name of the column containing text data.
             sample (bool): Whether to sample the data.
@@ -58,10 +56,9 @@ class Preprocessor:
 
         self.file_path = file_path
         self.file_type = file_type
-        self.docs_path = docs_path
+        self.documents_path = documents_path
         self.project_path = project_path
         self.project_name = project_name
-        self.path = path
 
         self.time_column = time_column
         self.time_format = time_format
@@ -94,7 +91,7 @@ class Preprocessor:
         """
         Merge multiple parquet files into a single dataframe.
         """
-        files = glob.glob(f"{self.docs_path}/*.{self.file_type}")
+        files = glob.glob(f"{self.documents_path}/*.{self.file_type}")
 
         if self.file_type == "parquet":
             dfs = [pd.read_parquet(f).assign(filename=f) for f in files]

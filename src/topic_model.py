@@ -45,8 +45,8 @@ class TopicModelPipeline:
     def __init__(
         self,
         project_name: str,
-        path: str,
-        docs_path: str = None,
+        output_path: str,
+        documents_path: str = None,
         file_path: str = None,
         file_type: str = None,
         model: str = "all-MiniLM-L6-v2",
@@ -79,7 +79,7 @@ class TopicModelPipeline:
         Args:
             project_name (str): Name of the project.
             path (str): Directory path for saving files.
-            docs_path (str, optional): Path to the documents.
+            documents_path (str, optional): Path to the documents.
             file_path (str, optional): Path to read already merged file.
             file_type (str, optional): File type for reading.
             model (str, optional): Model name for SentenceTransformer. Defaults to "all-MiniLM-L6-v2".
@@ -109,8 +109,8 @@ class TopicModelPipeline:
         """
 
         self.project_name = project_name
-        self.path = path
-        self.docs_path = docs_path
+        self.output_path = output_path
+        self.documents_path = documents_path
         self.file_path = file_path
         self.file_type = file_type
         self.embeddings_path = embeddings_path
@@ -143,7 +143,7 @@ class TopicModelPipeline:
         self.top_n_words = top_n_words
 
         # checks
-        if self.file_path is None and self.path is None:
+        if self.file_path is None and self.documents_path is None:
             print(
                 "You need to either specify a path for reading and merging files or you can specify the path to directly read a dataframe."
             )
@@ -175,10 +175,9 @@ class TopicModelPipeline:
         self.doc_list, self.id_list = Preprocessor(
             self.file_path,
             self.file_type,
-            self.docs_path,
+            self.documents_path,
             self.project_path,
             self.project_name,
-            self.path,
             self.time_column,
             self.time_format,
             self.text_column,
@@ -205,7 +204,7 @@ class TopicModelPipeline:
         current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M")
 
         self.folder_name = f"{self.project_name}_{current_datetime}"
-        self.project_path = os.path.join(self.path, self.folder_name)
+        self.project_path = os.path.join(self.output_path, self.folder_name)
 
         if not os.path.exists(self.project_path):
             os.makedirs(self.project_path)
@@ -419,6 +418,7 @@ class TopicModelPipeline:
 
 
         topics = self.topic_model.get_topic_info()
+
         topics.to_parquet(
             os.path.join(self.project_path, f"{self.project_name}_topic_info.parquet")
         )

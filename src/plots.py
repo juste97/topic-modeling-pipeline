@@ -130,12 +130,18 @@ class Plots:
         """
         Print wordcloud for each topic.
         """
-        for topic in range(-1,(self.pipeline_instance.topic_model.get_topic_info().shape[0]-1)):
+
+        path = os.path.join(self.pipeline_instance.project_path, "Wordclouds")
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        for topic in range(-1, (self.pipeline_instance.topic_model.get_topic_info().shape[0]-1)):
             text = {word: value for word, value in self.pipeline_instance.topic_model.get_topic(topic)}
             wc = WordCloud(background_color="white", max_words=1000)
             wc.generate_from_frequencies(text)
-            topic = ""
             plt.title(f"Wordcloud for topic {topic}")
             plt.imshow(wc, interpolation="bilinear")
             plt.axis("off")
+            plt.savefig(os.path.join(path, f"wordcloud_topic_{topic}.png"))
             plt.show()

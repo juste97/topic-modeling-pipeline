@@ -15,11 +15,6 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from sentence_transformers import SentenceTransformer
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-from wordcloud import WordCloud
-from adjustText import adjust_text
-import matplotlib.patheffects as pe
 
 from bertopic import BERTopic
 from bertopic.cluster import BaseCluster
@@ -47,11 +42,11 @@ class TopicModelPipeline:
         self,
         project_name: str,
         output_path: str,
-        documents_path: str = None,
-        file_path: str = None,
+        documents_path: str = "",
+        file_path: str = "",
         file_type: str = None,
         model: str = "all-MiniLM-L6-v2",
-        embeddings_path: str = None,
+        embeddings_path: str = "",
         reduced_embeddings_path: str = "",
         reduced_2D_embeddings_path: str = "",
         time_column: str = None,
@@ -144,13 +139,17 @@ class TopicModelPipeline:
         self.top_n_words = top_n_words
 
         # checks
-        if self.file_path is None and self.documents_path is None:
-            print(
-                "You need to either specify a path for reading and merging files or you can specify the path to directly read a dataframe."
+        if self.file_type is None and os.path.exists(self.documents_path):
+            raise AssertionError(
+                "You need to specify which type of files you want to load. Use: file_type."
             )
 
-        if not self.file_path is None and self.file_type is None:
-            print("You need to specify the format for which files to load.")
+        if not os.path.exists(self.file_path) and not os.path.exists(
+            self.documents_path
+        ):
+            raise AssertionError(
+                "You either need to specify a file to load or a folder and the file format. Use: file_path or documents_path and file_type"
+            )
 
         if self.sample:
             vars_to_check = {
@@ -248,7 +247,7 @@ class TopicModelPipeline:
         Tokenize the documents and build a vocabulary.
         """
 
-        print("Tokenizing words and filtering for less used ones.")
+        print("Tokenizing words and filtering for less used ones...")
 
         vocab = collections.Counter()
         tokenizer = CountVectorizer().build_tokenizer()
@@ -277,11 +276,11 @@ class TopicModelPipeline:
         filename = f"{self.project_name}_embeddings"
         full_path = os.path.join(self.project_path, filename)
 
-        if self.embeddings_path is not None:
+        if os.path.exists(self.embeddings_path):
             print(f"File {self.embeddings_path} already exists. Loading embeddings...")
             self.embeddings = self.load_numpy(self.embeddings_path)
         else:
-            print(f"Generating sentence level embeddings using {self.model}.")
+            print(f"Generating sentence level embeddings using {self.model}...")
 
             model = SentenceTransformer(self.model, device=device)
             self.embeddings = model.encode(self.doc_list, show_progress_bar=True)
@@ -314,7 +313,7 @@ class TopicModelPipeline:
             )
             reduced_embeddings = self.load_numpy(reduced_embeddings_path)
         else:
-            print(f"Reducing embedding dimensionality to {n_components}D")
+            print(f"Reducing embedding dimensionality to {n_components}D...")
             umap_model = UMAP(
                 n_components=n_components,
                 n_neighbors=self.n_neighbors,
@@ -339,7 +338,7 @@ class TopicModelPipeline:
             print(f"File {filename} already exists. Loading cluster data...")
             self.clusters = self.load_numpy(full_path)
         else:
-            print("Performing clustering on embeddings")
+            print("Performing clustering on embeddings...")
 
             hdbscan_model = HDBSCAN(
                 min_samples=self.min_samples,
@@ -358,12 +357,10 @@ class TopicModelPipeline:
 
         self.tokenizer()
         self.encode_documents()
-
+        self.embedding_model = SentenceTransformer(self.model)
         self.reduced_embeddings = self.reduce_dimensionality(n_components=5)
-
         self.cluster_documents()
 
-        self.embedding_model = SentenceTransformer(self.model)
         self.umap_model = Dimensionality(self.reduced_embeddings)
         self.hdbscan_model = BaseCluster()
         self.vectorizer_model = CountVectorizer(

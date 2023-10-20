@@ -87,19 +87,33 @@ class Preprocessor:
 
         print(f"Saving sampled dataframe with the name: {self.df_filename}.")
 
+    def read_file(self, file_path):
+        """
+        Read a file based on its type and return the dataframe.
+
+        Args:
+            file_path (str): Path to the file to be read.
+
+        Returns:
+            pd.DataFrame: Pandas Dataframe.
+        """
+        file_type = file_path.split(".")[-1]
+
+        if file_type == "parquet":
+            return pd.read_parquet(file_path)
+        elif file_type == "csv":
+            return pd.read_csv(file_path)
+        elif file_type == "xlsx":
+            return pd.read_excel(file_path)
+        else:
+            raise ValueError(f"Unsupported file type: {file_type}")
+
     def merge_parquet_files(self):
         """
         Merge multiple parquet files into a single dataframe.
         """
         files = glob.glob(f"{self.documents_path}/*.{self.file_type}")
-
-        if self.file_type == "parquet":
-            dfs = [pd.read_parquet(f).assign(filename=f) for f in files]
-        elif self.file_type == "csv":
-            dfs = [pd.read_csv(f).assign(filename=f) for f in files]
-        elif self.file_type == "xlsx":
-            dfs = [pd.read_excel(f).assign(filename=f) for f in files]
-
+        dfs = [self.read_file(f).assign(filename=f) for f in files]
         self.df = pd.concat(dfs, ignore_index=True)
 
     def convert_timestamps(self):
@@ -110,7 +124,7 @@ class Preprocessor:
             lambda x: pd.to_datetime(x, format=self.time_format)
         )
 
-        #"%b %d, %Y · %I:%M %p UTC"
+        # "%b %d, %Y · %I:%M %p UTC"
 
     def categorize_by_size(self):
         """
@@ -133,9 +147,7 @@ class Preprocessor:
         Returns:
             DataFrame: Sampled dataframe.
         """
-        n_samples = min(
-            int(len(group) * self.tresh_percent), self.tresh_absolut
-        )
+        n_samples = min(int(len(group) * self.tresh_percent), self.tresh_absolut)
         return group.sample(n=n_samples, random_state=self.random_state)
 
     def sample_from_df(self):
@@ -146,18 +158,15 @@ class Preprocessor:
         self.convert_timestamps()
         self.categorize_by_size()
 
-        if self.sample_frequency == 'day':
+        if self.sample_frequency == "day":
             time_grouping = self.many_samples[self.time_column].dt.day
-        elif self.sample_frequency == 'month':
+        elif self.sample_frequency == "month":
             time_grouping = self.many_samples[self.time_column].dt.month
         else:
             time_grouping = self.many_samples[self.time_column].dt.isocalendar().week
 
-
         random_sampled = (
-            self.many_samples.groupby(
-                [self.sample_by_column, time_grouping]
-            )
+            self.many_samples.groupby([self.sample_by_column, time_grouping])
             .apply(self.take_sample)
             .reset_index(drop=True)
         )
@@ -170,16 +179,7 @@ class Preprocessor:
         """
         Clean the text columns in the dataframe.
         """
-        if self.blackwords:
-            replacement_dict = {
-                r"(?i)" + word: "Institution" for word in self.blackwords
-            }
-            self.df[self.text_column] = self.df[self.text_column].replace(replacement_dict, regex=True)
-
-        self.df[self.text_column] = self.df[self.text_column].swifter.apply(
-            lambda x: x.strip().replace("\n", "").replace("'", "'")
-        )
-        self.df[self.text_column] = self.df[self.text_column].replace(r"@\w+", "", regex=True)
+        pass
 
     def dataframe_to_list(self):
         """
@@ -199,32 +199,34 @@ class Preprocessor:
         Returns:
             tuple: A tuple containing lists of preprocessed documents and their corresponding IDs.
         """
+        trigger = False
 
-        if not self.file_path is None:
-            print(f"File {self.file_path} already exists. Loading dataframe...")
-            self.df = pd.read_parquet(self.file_path)
+        if os.path.exists(self.file_path):
+            print(f"Loading dataframe {self.file_path}...")
+            self.df = self.read_file(self.file_path)
 
         else:
-
-            print("Loading, merging and cleaning files.")
+            print("Loading, merging and cleaning files...")
 
             self.merge_parquet_files()
 
         if self.sample:
-            print("Taking a subsample of the data...")
+            print("Sampling the data....")
 
             if self.sample_by_column == None:
-
                 self.sample_by_column = "Sample_Helper"
                 self.df[self.sample_by_column] = 1
 
             self.sample_from_df()
+            trigger = True
 
         if self.clean_text:
             print("Cleaning the text column...")
             self.clean_text_columns()
+            trigger = True
 
-        self.save_sampled_dataframe()
+        if trigger:
+            self.save_sampled_dataframe()
 
         docs, ids = self.dataframe_to_list()
 

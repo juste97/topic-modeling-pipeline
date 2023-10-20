@@ -5,7 +5,7 @@ from datetime import datetime
 import warnings
 from numba import NumbaDeprecationWarning
 
-warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 
 import pandas as pd
 import numpy as np
@@ -41,6 +41,7 @@ from src.dimensionality import Dimensionality
 from src.preprocessor import Preprocessor
 from src.plots import Plots
 
+
 class TopicModelPipeline:
     def __init__(
         self,
@@ -51,8 +52,8 @@ class TopicModelPipeline:
         file_type: str = None,
         model: str = "all-MiniLM-L6-v2",
         embeddings_path: str = None,
-        reduced_embeddings_path: str = None,
-        reduced_2D_embeddings_path: str = None,
+        reduced_embeddings_path: str = "",
+        reduced_2D_embeddings_path: str = "",
         time_column: str = None,
         time_format: str = "%Y-%m-%d %H:%M:%S",
         text_column: str = None,
@@ -149,21 +150,21 @@ class TopicModelPipeline:
             )
 
         if not self.file_path is None and self.file_type is None:
-            print(
-                "You need to specify the format for which files to load."
-            )
+            print("You need to specify the format for which files to load.")
 
         if self.sample:
             vars_to_check = {
-                'sample_frequency': self.sample_frequency,
-                'time_column': self.time_column,
-                'tresh': self.tresh,
-                'tresh_percent': self.tresh_percent,
-                'tresh_absolut': self.tresh_absolut
+                "sample_frequency": self.sample_frequency,
+                "time_column": self.time_column,
+                "tresh": self.tresh,
+                "tresh_percent": self.tresh_percent,
+                "tresh_absolut": self.tresh_absolut,
             }
-            
+
             none_vars = [name for name, value in vars_to_check.items() if value is None]
-            assert not none_vars, f"The following variables are None: {', '.join(none_vars)}"
+            assert (
+                not none_vars
+            ), f"The following variables are None: {', '.join(none_vars)}"
 
         # set constants
         self.random_state = 42
@@ -194,7 +195,6 @@ class TopicModelPipeline:
 
         self.plots = Plots(self)
 
-        # download stopwords
         nltk.download("stopwords")
         self.stop_words = stopwords.words("english")
 
@@ -288,63 +288,44 @@ class TopicModelPipeline:
 
             self.save_numpy(full_path, self.embeddings)
 
-    def reduce_dimensionality(self):
+    def reduce_dimensionality(self, n_components=5):
         """
         Reduce the dimensionality of the embeddings using UMAP.
+
+        Args:
+            n_components (int): Number of dimensions to reduce the embeddings to.
+
+        Returns:
+            numpy.ndarray: Reduced embeddings.
         """
 
         filepath = os.path.join(
-            self.project_path, f"{self.project_name}_reduced_embedding"
+            self.project_path, f"{self.project_name}_reduced_embedding_{n_components}D"
         )
 
-        if self.reduced_embeddings_path is not None:
-            print(
-                f"File {self.reduced_embeddings_path} already exists. Loading reduced embedding data..."
-            )
-            self.reduced_embeddings = self.load_numpy(self.reduced_embeddings_path)
+        if n_components == 2:
+            reduced_embeddings_path = self.reduced_2D_embeddings_path
         else:
-            print("Reducing embedding dimensionality")
+            reduced_embeddings_path = self.reduced_embeddings_path
 
+        if os.path.exists(reduced_embeddings_path):
+            print(
+                f"File {reduced_embeddings_path} already exists. Loading reduced embedding data..."
+            )
+            reduced_embeddings = self.load_numpy(reduced_embeddings_path)
+        else:
+            print(f"Reducing embedding dimensionality to {n_components}D")
             umap_model = UMAP(
-                n_components=self.n_components,
+                n_components=n_components,
                 n_neighbors=self.n_neighbors,
                 random_state=self.random_state,
                 metric=self.metric,
                 verbose=True,
             )
-            self.reduced_embeddings = umap_model.fit_transform(self.embeddings)
+            reduced_embeddings = umap_model.fit_transform(self.embeddings)
+            self.save_numpy(filepath, reduced_embeddings)
 
-            self.save_numpy(filepath, self.reduced_embeddings)
-
-    def reduce_dimensionality_2D(self):
-        """
-        Reduce the dimensionality of the embeddings using UMAP.
-        """
-
-        filepath = os.path.join(
-            self.project_path, f"{self.project_name}_reduced_embedding_2D"
-        )
-
-        if self.reduced_2D_embeddings_path is not None:
-            print(
-                f"File {self.reduced_2D_embeddings_path} already exists. Loading reduced embedding data..."
-            )
-            self.reduced_embeddings_2D = self.load_numpy(
-                self.reduced_2D_embeddings_path
-            )
-        else:
-            print("Reducing embedding dimensionality to 2D")
-
-            umap_model_2D = UMAP(
-                n_components=2,
-                n_neighbors=self.n_neighbors,
-                random_state=self.random_state,
-                metric=self.metric,
-                verbose=True,
-            )
-            self.reduced_embeddings_2D = umap_model_2D.fit_transform(self.embeddings)
-
-            self.save_numpy(filepath, self.reduced_embeddings_2D)
+        return reduced_embeddings
 
     def cluster_documents(self):
         """
@@ -374,9 +355,12 @@ class TopicModelPipeline:
         """
         Prepare the necessary models for topic modeling.
         """
+
         self.tokenizer()
         self.encode_documents()
-        self.reduce_dimensionality()
+
+        self.reduced_embeddings = self.reduce_dimensionality(n_components=5)
+
         self.cluster_documents()
 
         self.embedding_model = SentenceTransformer(self.model)
@@ -402,7 +386,7 @@ class TopicModelPipeline:
             hdbscan_model=self.hdbscan_model,
             vectorizer_model=self.vectorizer_model,
             representation_model=self.representation_model,
-            top_n_words = self.top_n_words,
+            top_n_words=self.top_n_words,
             verbose=True,
         ).fit(self.doc_list, embeddings=self.embeddings, y=self.clusters)
 
@@ -416,7 +400,6 @@ class TopicModelPipeline:
             save_embedding_model=self.model,
         )
 
-
         topics = self.topic_model.get_topic_info()
 
         topics.to_parquet(
@@ -424,9 +407,13 @@ class TopicModelPipeline:
         )
 
     def plot_wordclouds(self):
-
+        """
+        Plot word clouds for the topics identified by the model.
+        """
         self.plots.plot_wordclouds()
 
     def plot_clusters(self):
-
+        """
+        Plot clusters.
+        """
         self.plots.plot_clusters()

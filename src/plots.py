@@ -41,29 +41,38 @@ class Plots:
                 "Topic": [str(t) for t in self.pipeline_instance.topic_model.topics_],
             }
         )
+
+        unique_categories = df["Topic"].unique()
+        category_colors = sns.color_palette("hsv", len(unique_categories)).as_hex()
+        category_color_mapping = dict(zip(unique_categories, category_colors))
+        df["Color"] = df["Topic"].map(category_color_mapping).astype(str)
+
         df["Length"] = [len(doc) for doc in self.pipeline_instance.doc_list]
         df = df.loc[df.Topic != "-1"]
-        df = df.loc[(df.y > -10) & (df.y < 10) & (df.x < 10) & (df.x > -10), :]
+        df = df.loc[(df.y > -30) & (df.y < 30) & (df.x < 30) & (df.x > -30), :]
         df["Topic"] = df["Topic"].astype("category")
 
-        mean_df = df.groupby("Topic").mean().reset_index()
+        mean_df = df.groupby("Topic")[["x", "y"]].mean().reset_index()
         mean_df.Topic = mean_df.Topic.astype(int)
         mean_df = mean_df.sort_values("Topic")
 
+        mean_df["Topic"] = mean_df["Topic"].astype(str)
+        mean_df["Color"] = mean_df["Topic"].map(category_color_mapping).astype(str)
+        mean_df["Color"].fillna("#faf7f7", inplace=True)
+
         fig = plt.figure(figsize=(16, 16))
-        sns.scatterplot(
-            data=df,
-            x="x",
-            y="y",
-            hue="Topic",
+        plt.scatter(
+            x=df["x"],
+            y=df["y"],
+            c=df["Color"],
             alpha=0.4,
-            sizes=(0.4, 10),
-            size="Length",
+            s=df["Length"],
+            cmap="viridis",
         )
 
         texts, xs, ys = [], [], []
-        for row in mean_df.iterrows():
-            topic = row[1]["Topic"]
+        for index, row in mean_df.iterrows():
+            topic = row["Topic"]
             name = " - ".join(
                 list(zip(*self.pipeline_instance.topic_model.get_topic(int(topic))))[0][
                     :3
@@ -71,15 +80,16 @@ class Plots:
             )
 
             if int(topic) <= 50:
-                xs.append(row[1]["x"])
-                ys.append(row[1]["y"])
+                xs.append(row["x"])
+                ys.append(row["y"])
                 texts.append(
                     plt.text(
-                        row[1]["x"],
-                        row[1]["y"],
+                        row["x"],
+                        row["y"],
                         name,
                         size=10,
                         ha="center",
+                        color=row["Color"],
                         path_effects=[pe.withStroke(linewidth=0.5, foreground="black")],
                     )
                 )

@@ -1,6 +1,6 @@
 # Topic Modeling Pipeline
 
-This repository contains a pipeline for topic modeling using [BERTopic](https://github.com/MaartenGr/BERTopic), a Python library for topic modeling with BERT embeddings. The pipeline includes preprocessing, tokenization, embedding generation, dimensionality reduction, clustering, and visualization.
+This repository contains a pipeline for topic modeling using [BERTopic](https://github.com/MaartenGr/BERTopic), a Python library for topic modeling with BERT embeddings.
 
 
 **Note: This is my first attempt at creating a class-based pipeline. If you have suggestions or best practices to share, please let me know! I'd greatly appreciate any feedback 😊**
@@ -13,10 +13,6 @@ This repository contains a pipeline for topic modeling using [BERTopic](https://
 - **Dimensionality Reduction**: Reduce the dimensionality of the embeddings using UMAP. Previously reduced embeddings can be loaded for faster processing.
 - **Clustering**: Cluster the reduced embeddings using HDBSCAN. You can also load previously generated clusters to speed up experiments.
 - **Visualization**: Visualize the clusters and generate word clouds for each topic.
-
-
-
-Specify paths for embeddings and reduced embeddings to expedite experimentation. 
 
 
 The pipeline saves everything (including cluster plot and topics overview) in a unique folder every time an instance is created.

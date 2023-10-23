@@ -35,6 +35,7 @@ import locale
 from src.dimensionality import Dimensionality
 from src.preprocessor import Preprocessor
 from src.plots import Plots
+from src.evaluator import Evaluator
 
 
 class TopicModelPipeline:
@@ -346,7 +347,8 @@ class TopicModelPipeline:
                 prediction_data=self.prediction_data,
                 min_cluster_size=self.min_cluster_size,
             )
-            self.clusters = hdbscan_model.fit(self.reduced_embeddings).labels_
+            self.hdbscan_model_fit = hdbscan_model.fit(self.reduced_embeddings)
+            self.clusters = self.hdbscan_model_fit.labels_
 
             self.save_numpy(full_path, self.clusters)
 
@@ -360,6 +362,14 @@ class TopicModelPipeline:
         self.embedding_model = SentenceTransformer(self.model)
         self.reduced_embeddings = self.reduce_dimensionality(n_components=5)
         self.cluster_documents()
+
+        self.evaluator = Evaluator(self.reduced_embeddings, self.hdbscan_model_fit)
+        self.metrics = self.evaluator.calculate_metrics()
+
+        print("Metric Name                   | Value")
+        print("--------------------------------------")
+        for key, value in self.metrics.items():
+            print(f"{key:30} | {value:.4f}")
 
         self.umap_model = Dimensionality(self.reduced_embeddings)
         self.hdbscan_model = BaseCluster()

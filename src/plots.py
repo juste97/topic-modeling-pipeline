@@ -63,6 +63,8 @@ class Plots:
         Visualizes clusters by additionaly reducing embeddings to 2D.
         """
 
+        # TODO: Still need to add legend.
+
         df = pd.DataFrame(
             {
                 "x": self.reduced_embeddings_2D[:, 0],
@@ -98,6 +100,8 @@ class Plots:
             s=df["Length"],
             cmap="viridis",
         )
+
+        plt.title("Top Clusters")
 
         texts, xs, ys = [], [], []
         for index, row in mean_df.iterrows():

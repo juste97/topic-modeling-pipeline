@@ -25,19 +25,48 @@ class Plots:
         """
         self.pipeline_instance = pipeline_instance
 
-    def plot_clusters(self):
+        self.reduced_embeddings_2D = self.pipeline_instance.reduce_dimensionality(
+            n_components=2
+        )
+
+    def plot_raw_clusters(self):
+        """
+        Plot the clusters in a 2D space.
+        """
+        plt.figure(figsize=(16, 16))
+
+        unique_clusters = sorted(list(set(self.pipeline_instance.clusters)))
+
+        for cluster in unique_clusters:
+            plt.scatter(
+                self.reduced_embeddings_2D[
+                    self.pipeline_instance.clusters == cluster, 0
+                ],
+                self.reduced_embeddings_2D[
+                    self.pipeline_instance.clusters == cluster, 1
+                ],
+                label=f"Cluster {cluster}",
+                cmap="viridis",
+                s=10,
+            )
+
+        plt.title("Clusters")
+        plt.legend(loc="upper right")
+
+        fig_path = os.path.join(self.pipeline_instance.project_path, "raw_clusters.png")
+        plt.savefig(fig_path, dpi=300)
+
+        plt.show()
+
+    def plot_top_clusters(self):
         """
         Visualizes clusters by additionaly reducing embeddings to 2D.
         """
 
-        reduced_embeddings_2D = self.pipeline_instance.reduce_dimensionality(
-            n_components=2
-        )
-
         df = pd.DataFrame(
             {
-                "x": reduced_embeddings_2D[:, 0],
-                "y": reduced_embeddings_2D[:, 1],
+                "x": self.reduced_embeddings_2D[:, 0],
+                "y": self.reduced_embeddings_2D[:, 1],
                 "Topic": [str(t) for t in self.pipeline_instance.topic_model.topics_],
             }
         )
@@ -104,9 +133,7 @@ class Plots:
             force_pull=(0.5, 0.5),
         )
 
-        fig_path = os.path.join(
-            self.pipeline_instance.project_path, "output_filename.png"
-        )
+        fig_path = os.path.join(self.pipeline_instance.project_path, "top_clusters.png")
         fig.savefig(fig_path, dpi=300)
 
         return fig

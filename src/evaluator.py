@@ -5,11 +5,16 @@ import numpy as np
 
 class Evaluator:
     def __init__(
-        self, X: np.array, model: np.array, sil_score_metric: str = "euclidean"
+        self,
+        X: np.array,
+        model: np.array,
+        sil_score_metric: str = "euclidean",
+        path: str = "",
     ):
         self.X = X
         self.model = model
         self.sil_score_metric = sil_score_metric
+        self.path = path
         self.labels = self.model.labels_
 
         """
@@ -17,6 +22,7 @@ class Evaluator:
             X (np.array): The input data samples.
             model (np.array): Fitted clustering model.
             sil_score_metric (str, optional): Metric to use when calculating the silhouette score. Defaults to "euclidean".
+            path (str, optional): Path for saving raw cluster plot.
         """
 
     def reshape_data(self):

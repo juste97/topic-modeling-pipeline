@@ -193,8 +193,6 @@ class TopicModelPipeline:
             self.blackwords,
         ).preprocess()
 
-        self.plots = Plots(self)
-
         nltk.download("stopwords")
         self.stop_words = stopwords.words("english")
 
@@ -357,6 +355,8 @@ class TopicModelPipeline:
         Prepare the necessary models for topic modeling.
         """
 
+        # TODO: split this into multiple functions
+
         self.tokenizer()
         self.encode_documents()
         self.embedding_model = SentenceTransformer(self.model)
@@ -370,6 +370,7 @@ class TopicModelPipeline:
         print("--------------------------------------")
         for key, value in self.metrics.items():
             print(f"{key:30} | {value:.4f}")
+        print("--------------------------------------")
 
         self.umap_model = Dimensionality(self.reduced_embeddings)
         self.hdbscan_model = BaseCluster()
@@ -377,6 +378,9 @@ class TopicModelPipeline:
             vocabulary=self.vocab, stop_words=self.stop_words
         )
         self.representation_model = KeyBERTInspired()
+
+        # TODO: only hand over needed class attributes => information hiding
+        self.plots = Plots(self)
 
     def model_fit(self):
         """
@@ -419,8 +423,14 @@ class TopicModelPipeline:
         """
         self.plots.plot_wordclouds()
 
-    def plot_clusters(self):
+    def plot_top_clusters(self):
         """
         Plot clusters.
         """
-        self.plots.plot_clusters()
+        self.plots.plot_top_clusters()
+
+    def plot_raw_clusters(self):
+        """
+        Plot clusters.
+        """
+        self.plots.plot_raw_clusters()

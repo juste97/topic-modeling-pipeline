@@ -66,8 +66,15 @@ pipeline = TopicModelPipeline(
 
 3. **Visualize Clusters:**
  ```python
- pipeline.plot_clusters()
+ pipeline.plot_raw_clusters()
 ```
+![raw](https://github.com/juste97/topic-modeling-pipeline/blob/main/data/plots/raw_clusters.png?raw=true)
+
+
+ ```python
+ pipeline.plot_top_clusters()
+```
+![top](https://github.com/juste97/topic-modeling-pipeline/blob/main/data/plots/top_clusters.png?raw=true)
 
 
 4. **Visualize Word Clouds:**

@@ -11,7 +11,7 @@ from experiments.utility.mlflow_utils import *
     config_path=r"C:\Users\steng\Github\topic-modeling-pipeline\experiments\configs",
     config_name="config",
 )
-def main(cfg: DictConfig) -> None:
+def main(cfg: DictConfig) -> float:
     """
     Main function to start multirun for cluster experiments.
 
@@ -19,7 +19,7 @@ def main(cfg: DictConfig) -> None:
         cfg (DictConfig): Hydra config file.
 
     Returns:
-        None
+        optuna_metric (float): Metric (trial result) to be minimzed by optuna.
     """
     start_run(cfg)
 

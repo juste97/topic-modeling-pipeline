@@ -2,7 +2,7 @@ import mlflow
 from datetime import datetime
 
 # Start MLFLow server like this (replace path with mlruns folder in outputs folder):
-# mlflow server --backend-store-uri file:/Users/julian/Git/topic-modeling-pipeline/experiments/output/mlflow
+# mlflow server --backend-store-uri file:C:\Users\steng\Github\topic-modeling-pipeline\experiments\output\mlflow
 
 
 def start_run(cfg) -> None:
@@ -46,8 +46,8 @@ def end_run(cfg, metrics, raw_clusters, top_clusters) -> None:
         mlflow.log_param(key, value)
 
     mlflow.log_dict(pipeline_params, "pipeline_parameters.json")
-    mlflow.log_figure(raw_clusters, "raw_clusters.png")
-    mlflow.log_figure(top_clusters, "top_clusters.png")
+    # mlflow.log_figure(raw_clusters, "raw_clusters.png")
+    # mlflow.log_figure(top_clusters, "top_clusters.png")
 
     mlflow.log_param("model_name", cfg.experiment_name)
     mlflow.end_run()

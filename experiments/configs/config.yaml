@@ -3,7 +3,7 @@ defaults:
   - override hydra/sweeper: optuna
   - override hydra/sweeper/sampler: tpe
 
-output_folder: "/Users/julian/Git/topic-modeling-pipeline/experiments/output"
+output_folder: "C:/Users/steng/Github/topic-modeling-pipeline/experiments/output"
 experiment_name: Twitter_Kaggle
 parameter: "silhouette_score"
 
@@ -14,8 +14,8 @@ pipeline:
     _target_ : src.topic_model.TopicModelPipeline
     project_name: "${experiment_name}"
     output_path: "${output_folder}/output"
-    documents_path: "/Users/julian/Git/topic-modeling-pipeline/data/Input"
-    file_path: "/Users/julian/Git/topic-modeling-pipeline/data/Input/KaggleTwitterSentiment.parquet"
+    documents_path: "C:/Users/steng/Github/topic-modeling-pipeline/data/Input"
+    file_path: "C:/Users/steng/Github/topic-modeling-pipeline/data/Input/KaggleTwitterSentiment.parquet"
     file_type: "parquet"
     text_column: "text"
     time_column: "date"

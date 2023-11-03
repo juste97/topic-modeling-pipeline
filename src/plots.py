@@ -58,6 +58,8 @@ class Plots:
 
         plt.show()
 
+        return plt
+
     def plot_top_clusters(self):
         """
         Visualizes clusters by additionaly reducing embeddings to 2D.

@@ -1,0 +1,6 @@
+pipeline.min_samples: int(range(10, 100, 5))
+pipeline.gen_min_span_tree: choice("True", "False")
+pipeline.min_cluster_size: int(range(10, 50, 1))
+pipeline.n_neighbors: int(range(2, 20, 1))
+pipeline.cluster_selection_epsilon: float(range(0.0, 0.5, 0.01))
+

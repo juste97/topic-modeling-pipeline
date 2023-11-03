@@ -62,6 +62,7 @@ class TopicModelPipeline:
         gen_min_span_tree=True,
         prediction_data=False,
         min_cluster_size=300,
+        cluster_selection_epsilon=0.0,
         verbose=True,
         n_components=5,
         n_neighbors=10,
@@ -132,6 +133,7 @@ class TopicModelPipeline:
         self.gen_min_span_tree = gen_min_span_tree
         self.prediction_data = prediction_data
         self.min_cluster_size = min_cluster_size
+        self.cluster_selection_epsilon = cluster_selection_epsilon
         self.verbose = verbose
         self.n_components = n_components
         self.n_neighbors = n_neighbors
@@ -343,6 +345,7 @@ class TopicModelPipeline:
                 min_samples=self.min_samples,
                 gen_min_span_tree=self.gen_min_span_tree,
                 prediction_data=self.prediction_data,
+                cluster_selection_epsilon=self.cluster_selection_epsilon,
                 min_cluster_size=self.min_cluster_size,
             )
             self.hdbscan_model_fit = hdbscan_model.fit(self.reduced_embeddings)

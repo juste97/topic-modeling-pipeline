@@ -7,13 +7,10 @@ from datetime import datetime
 
 def start_run(cfg) -> None:
     """
-    Initializes an MLflow run using the given configuration.
+    Start mlflow run.
 
-    Parameters:
-    - cfg (Config object): The configuration object containing experiment and model details.
-
-    Returns:
-    None
+    Args:
+        cfg (DictConfig): Hydra config file.
     """
     tracking_uri = f"file:{cfg.mlflow.tracking_uri}"
     mlflow.set_tracking_uri(tracking_uri)
@@ -28,14 +25,13 @@ def start_run(cfg) -> None:
 
 def end_run(cfg, metrics, raw_clusters, top_clusters) -> None:
     """
-    Logs the results and model parameters to the current MLflow run and then ends the run.
+    End the mlflow run and track run information.
 
-    Parameters:
-    - cfg (Config object): The configuration object containing model details.
-    - results (dict): Dictionary containing the results/metrics to be logged.
-
-    Returns:
-    None
+    Args:
+        cfg (DictConfig): Hydra config file.
+        metrics (Dictionary): Metrics to evaluate the clusters.
+        raw_clusters (Plot): Raw cluster plot.
+        top_clusters (Plot): Top cluster plot.
     """
     for key, value in metrics.items():
         mlflow.log_metric(key, value)

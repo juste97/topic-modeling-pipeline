@@ -2,9 +2,6 @@ import hydra
 from omegaconf import DictConfig
 import numpy as np
 import sys
-
-sys.path.append(".")
-
 from src.topic_model import *
 from experiments.utility.mlflow_utils import *
 
@@ -14,7 +11,16 @@ from experiments.utility.mlflow_utils import *
     config_path=r"C:\Users\steng\Github\topic-modeling-pipeline\experiments\configs",
     config_name="config",
 )
-def main(cfg: DictConfig):
+def main(cfg: DictConfig) -> None:
+    """
+    Main function to start multirun for cluster experiments.
+
+    Args:
+        cfg (DictConfig): Hydra config file.
+
+    Returns:
+        None
+    """
     start_run(cfg)
 
     model = hydra.utils.instantiate(cfg.pipeline)

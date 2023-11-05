@@ -82,6 +82,17 @@ pipeline = TopicModelPipeline(
  pipeline.plot_wordclouds()
 ```
 
+## Mlflow
+
+Everything is tracked with mlflow.
+
+![mlflow1](https://github.com/juste97/topic-modeling-pipeline/blob/hydra-config/data/plots/mlflow_1.jpg?raw=true)
+
+![mlflow2](https://github.com/juste97/topic-modeling-pipeline/blob/hydra-config/data/plots/mlflow_2.jpg?raw=true)
+
+![mlflow3](https://github.com/juste97/topic-modeling-pipeline/blob/hydra-config/data/plots/mlflow_3.jpg?raw=true)
+
+
 ## GPU acceleration
 
 For GPU acceleration switch out HDBSCAN and UMAP import with
